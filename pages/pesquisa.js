@@ -11,10 +11,7 @@ const Pesquisa = () => {
     const notas = [1, 2, 3, 4 ,5]
     const [success, setSuccess] = useState(false)
     const [retorno, setRetorno] = useState({})
-    const [errosForm, setErrosForm] = useState([{
-        Campo: '',
-        Erro: ''
-    }])
+    const [errosForm, setErrosForm] = useState([])
 
     const onChange = evt => {
         const value = evt.target.value
@@ -24,39 +21,47 @@ const Pesquisa = () => {
             ...old,
             [key]: value
         }))
-
-        console.log(form)
     }
 
     const save = async () => {
         try {
-
-            if (form.Nome === '' && errosForm.findIndex(erro => erro.Campo === 'Nome') < 0) {
-                setErrosForm(old => [...old, { Campo: 'Nome', Erro: 'Obrigatorio' }])
-            }
-    
-            if (form.Email === '' && errosForm.findIndex(erro => erro.Campo === 'Nome') < 0) {
-                setErrosForm(old => [...old, { Campo: 'Email', Erro: 'Obrigatorio' }])
-            }
-    
-            if (form.Whatsapp === '' && errosForm.findIndex(erro => erro.Campo === 'Whatsapp') < 0) {
-                setErrosForm(old => [...old, { Campo: 'Whatsapp', Erro: 'Obrigatorio' }])
-            }
-
-            if (errosForm.length > 0) return
-
-            const resp = await fetch('/api/save', {
-                method: 'POST',
-                body: JSON.stringify(form)
-            })
-            const data = await resp.json()
-    
-            if (data && data.showCupom) {
-                setSuccess(true)
-                setRetorno(data)
+            if (!validarForm()) {
+                setSuccess(false)
+                setRetorno({})
+            } else {
+                const resp = await fetch('/api/save', {
+                    method: 'POST',
+                    body: JSON.stringify(form)
+                })
+                const data = await resp.json()
+        
+                if (data && data.showCupom) {
+                    setSuccess(true)
+                    setRetorno(data)
+                }
             }
         } catch (err) {
             console.log(err)
+        }
+    }
+
+    const validarForm = () => {
+        if (form.Nome === '' && errosForm.findIndex(erro => erro.Campo === 'Nome') < 0) {
+            setErrosForm(old => [...old, { Campo: 'Nome', Erro: 'Obrigatorio' }])
+        }
+
+        if (form.Email === '' && errosForm.findIndex(erro => erro.Campo === 'Nome') < 0) {
+            setErrosForm(old => [...old, { Campo: 'Email', Erro: 'Obrigatorio' }])
+        }
+
+        if (form.Whatsapp === '' && errosForm.findIndex(erro => erro.Campo === 'Whatsapp') < 0) {
+            setErrosForm(old => [...old, { Campo: 'Whatsapp', Erro: 'Obrigatorio' }])
+        }
+
+        if (form.Nome === '' || form.Email === '' || form.Whatsapp === '') {
+            return false
+        } else {
+            return true
         }
     }
 
@@ -77,7 +82,7 @@ const Pesquisa = () => {
     }
 
     return (
-        <div className='pt-6'>
+        <div className='pt-6 w-auto'>
             <PageTitle title='Pesquisa' />
             <h1 className='text-center font-bold my-4 text-2xl'>Críticas e sugestões</h1>
             <p className='text-center font-bold mb-6'>O restaurante X sempre busca por atender melhor seus clientes.<br /> 
@@ -106,7 +111,7 @@ const Pesquisa = () => {
                 </div>
                 <button
                     className='bg-blue-400 px-6 py-4 font-bold rounded-lg shadow-lg hover:bg-blue-200 text-white w-full'
-                    onClick={save}
+                    onClick={() => save()}
                 >
                     Salvar
                 </button>
