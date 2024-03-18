@@ -1,2 +1,3 @@
 # palpitebox
- Aplicação criada no curso fullstake do devpleno
+
+Aplicação criada no curso fullstake do devpleno
